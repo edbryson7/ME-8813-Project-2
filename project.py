@@ -17,6 +17,8 @@ def main():
     except:
         mode = 0
 
+    mode = 2
+
     train_path = './/casting_data//train//'
     test_path = './/casting_data//test//'
     traindf = pd.read_csv(train_path+'train.csv')
@@ -51,7 +53,11 @@ def init_cnn(inp_shape):
     model.add(layers.MaxPooling2D((2, 2)))
     model.add(layers.Conv2D(16, (5, 5), activation='relu'))
     model.add(layers.MaxPooling2D((2, 2)))
+    model.add(layers.Conv2D(32, (7, 7), activation='relu'))
+    model.add(layers.MaxPooling2D((2, 2)))
     model.add(layers.Flatten())
+    model.add(layers.Dropout(.2))
+    model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dropout(.2))
     model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dropout(.2))
@@ -72,7 +78,7 @@ def train_cnn(model, images, labels, test_images, test_labels):
     # model.summary()
 
     print('='*90)
-    history = model.fit(images, labels, epochs=10, batch_size=50, verbose=1,
+    history = model.fit(images, labels, epochs=15, batch_size=50, verbose=1,
                     validation_data=(test_images, test_labels))
 
     # print('Finished training')
@@ -124,9 +130,9 @@ def test_cnn(test_images, test_labels):
         heat[:,i]=heat[:,i]/sum(heat[:,i])
 
     fig, ax = plt.subplots()
-    plt.title(f'CNN Validation Confusion Matrix: {round(test_acc*100,3)}% Accuracy\n')
-    plt.xlabel('Correct Digit')
-    plt.ylabel('Predicted Digit')
+    plt.title(f'CNN Validation Confusion Matrix: {round(test_acc*100,3)}% Accuracy\n0 = Okay, 1 = Deformed\n')
+    plt.xlabel('Correct State')
+    plt.ylabel('Predicted State')
 
     im, cbar = heatmap(heat, range(2), range(2), ax=ax, cmap='copper',
             cbarlabel='correct predictions')
