@@ -8,6 +8,8 @@ import sys
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
+from heatmapplot import *
+
 def main():
     # np.set_printoptions(threshold=sys.maxsize)
     try:
@@ -47,17 +49,17 @@ def init_cnn(inp_shape):
 
     model.add(layers.Conv2D(8, (3, 3), activation='relu', input_shape=inp_shape))
     model.add(layers.MaxPooling2D((2, 2)))
-    # model.add(layers.Conv2D(16, (5, 5), activation='relu'))
-    # model.add(layers.MaxPooling2D((2, 2)))
+    model.add(layers.Conv2D(16, (5, 5), activation='relu'))
+    model.add(layers.MaxPooling2D((2, 2)))
     model.add(layers.Flatten())
-    # model.add(layers.Dropout(.2))
-    # model.add(layers.Dense(64, activation='relu'))
-    # model.add(layers.Dropout(.2))
-    # model.add(layers.Dense(32, activation='relu'))
-    # model.add(layers.Dropout(.2))
+    model.add(layers.Dropout(.2))
+    model.add(layers.Dense(64, activation='relu'))
+    model.add(layers.Dropout(.2))
+    model.add(layers.Dense(32, activation='relu'))
+    model.add(layers.Dropout(.2))
     model.add(layers.Dense(1, activation='sigmoid'))
 
-    # model.summary()
+    model.summary()
 
     model.compile(optimizer='adam',
               loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
@@ -70,7 +72,7 @@ def train_cnn(model, images, labels, test_images, test_labels):
     # model.summary()
 
     print('='*90)
-    history = model.fit(images, labels, epochs=2, batch_size=150, verbose=1,
+    history = model.fit(images, labels, epochs=10, batch_size=50, verbose=1,
                     validation_data=(test_images, test_labels))
 
     # print('Finished training')
@@ -107,18 +109,18 @@ def test_cnn(test_images, test_labels):
 
     y = model.predict(test_images)
 
-    return
     # Pulling the categorized label
-    y = [np.argmax(i) for i in y]
+    y = np.round(y)
+    y = y.astype(int)
 
     assert len(y)==len(test_labels)
 
     # Creating a heatmap
-    heat = np.zeros((10,10))#,dtype=int)
+    heat = np.zeros((2,2))#,dtype=int)
     for i in range(len(y)):
         heat[y[i],test_labels[i]]+=1
 
-    for i in range(10):
+    for i in range(2):
         heat[:,i]=heat[:,i]/sum(heat[:,i])
 
     fig, ax = plt.subplots()
@@ -126,7 +128,7 @@ def test_cnn(test_images, test_labels):
     plt.xlabel('Correct Digit')
     plt.ylabel('Predicted Digit')
 
-    im, cbar = heatmap(heat, range(10), range(10), ax=ax, cmap='cividis',
+    im, cbar = heatmap(heat, range(2), range(2), ax=ax, cmap='copper',
             cbarlabel='correct predictions')
 
     texts = annotate_heatmap(im,heat,textcolors=('white','black'))
