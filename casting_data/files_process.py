@@ -1,7 +1,7 @@
 import os
 csv_path='log.csv'
 
-file_name = 'train_def'
+file_name = 'train_ok'
 files = [f for f in os.listdir() if '.jpeg' in f]
 for i in range(len(files)):
     print(files[i])
@@ -10,4 +10,4 @@ for i in range(len(files)):
         os.rename(files[i], im_name)
     
         with open(csv_path,'a') as f:
-            f.write(f'{im_name}, def\n')
+            f.write(f'{im_name}, ok\n')
