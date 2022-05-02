@@ -27,20 +27,26 @@ def main():
     traindf = pd.read_csv(train_path+'train.csv')
     testdf = pd.read_csv(test_path+'test.csv')
 
-    trainx, trainy = init_df(traindf, train_path)
-    trainx = np.expand_dims(trainx, axis=-1) # <--- add batch axisp
     testx, testy = init_df(testdf, test_path)
-    testx = np.expand_dims(testx, axis=-1) # <--- add batch axisp
+    testx = np.expand_dims(testx, axis=-1) # <--- add batch axis
 
     if mode == 1:
         # Create and train the model
+        trainx, trainy = init_df(traindf, train_path)
+        trainx = np.expand_dims(trainx, axis=-1) # <--- add batch axis
+
         model = init_cnn(np.shape(trainx[0]))
         train_cnn(model, trainx, trainy, testx, testy)
+
     elif mode == 2:
         # Test the model
         test_cnn(testx, testy)
+
     else:
         # Create, train and test the model
+        trainx, trainy = init_df(traindf, train_path)
+        trainx = np.expand_dims(trainx, axis=-1) # <--- add batch axis
+
         model = init_cnn(np.shape(trainx[0]))
         train_cnn(model, trainx, trainy, testx, testy)
         test_cnn(testx, testy)
